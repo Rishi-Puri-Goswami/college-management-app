@@ -10,7 +10,7 @@ export const EXCHANGE_NAME = {
   CLASS: 'class.server.exchange'
 };
 
-// const RABBITMQ_URL = process.env.RABBIT_URL || 'amqp://localhost';
+const RABBITMQ_URL = process.env.RABBIT_URL || 'amqp://localhost';
 
 let connection = null;
 let consumerChannel = null;
@@ -19,7 +19,7 @@ let consumerChannel = null;
 export const connectRabbitMQ = async (exchange) => {
   try {
     if (!connection) {
-      connection = await amqp.connect("amqps://cmflcwal:h37XazIm6s4a4kNcMmGOU7eGljZtnZ53@fuji.lmq.cloudamqp.com/cmflcwal");
+      connection = await amqp.connect(`${RABBITMQ_URL}`);
       console.log('✅ Connected to RabbitMQ');
     }
     if (!consumerChannel) {
@@ -72,7 +72,7 @@ export const subscribeEvent = async (exchange, routingKey, handleFn) => {
 
 // 4. RPC Request (request-reply)
 export const rpcRequest = async (exchange, routingKey, payload, ttl = 5000) => {
-  const rpcConn = await amqp.connect("amqps://cmflcwal:h37XazIm6s4a4kNcMmGOU7eGljZtnZ53@fuji.lmq.cloudamqp.com/cmflcwal");
+  const rpcConn = await amqp.connect(`${RABBITMQ_URL}`);
   const rpcChannel = await rpcConn.createChannel();
   await rpcChannel.assertExchange(exchange, 'topic', { durable: true });
 
@@ -130,7 +130,7 @@ export const closeRabbitMQ = async () => {
 // 6. Optional: create ad-hoc channel
 export const createChannel = async () => {
   if (!connection) {
-    connection = await amqp.connect("amqps://cmflcwal:h37XazIm6s4a4kNcMmGOU7eGljZtnZ53@fuji.lmq.cloudamqp.com/cmflcwal");
+    connection = await amqp.connect(`${RABBITMQ_URL}`);
   }
   return await connection.createChannel();
 };
